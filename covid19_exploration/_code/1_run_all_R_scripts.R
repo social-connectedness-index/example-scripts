@@ -35,7 +35,7 @@ rm(list=ls())
 #### B. Make time series results for US ####
 ############################################
 
-### FILL THESE LINES BEFORE RUNNING
+### FILL THIS LINE BEFORE RUNNING
 dir.sci_dat_county <- ""
 
 # B1: Make the two case weighted measures of interest (RAM intensive!)
@@ -44,7 +44,7 @@ source("time_series/b1_make_weighted_measures.R")
 # B2: Build the regression table for the time series analyses
 source("time_series/b2_build_time_series_regress_dat.R")
 
-# B3: Generate the distance between the centroids of all Italian provinces
+# B3: Conduct the prediction exercise using the weighted measures (RAM intensive!)
 source("time_series/b3_prediction_exercise.R")
 
 # B4 is a Stata file run from run_all_stata_scripts.do

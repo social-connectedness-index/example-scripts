@@ -1,7 +1,7 @@
 # Purpose: Build the regression table for the time series analyses
 #           and make maps of all time series measures
 # Inputs: 
-#     US COVID time series data from: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv
+#     US COVID time series data from: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/64689f437b15e336aca4b65f0240576f5a52c091/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv
 #     _intermediate/sci_weighted_cases.csv
 #     _intermediate/dist_weighted_cases.csv
 # Outputs: 
@@ -23,7 +23,7 @@ library(tigris)
 
 # Read in baseline COVID data
 cases <- 
-  read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv") %>% 
+  read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/64689f437b15e336aca4b65f0240576f5a52c091/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv") %>% 
   filter(!is.na(FIPS)) %>% 
   filter(iso2 == "US") %>% # filters out territories
   filter(FIPS < 80000) %>% # filters out 'unassigned' cases within states

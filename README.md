@@ -1,4 +1,4 @@
-# Example code for use with the Social Connectedness Index
+# Example code for the Social Connectedness Index
 
   
 

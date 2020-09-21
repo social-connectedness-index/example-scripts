@@ -1,3 +1,5 @@
+# These lines are added so that the 'languages' section of the repo doesn't count things like our huge html files (generated in R by leaflet)
 * linguist-vendored
 *.R linguist-vendored=false
 *.do linguist-vendored=false
+*.py linguist-vendored=false

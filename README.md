@@ -22,7 +22,7 @@ The resources are split into 3 main directories:
 
   
 
-2. `gadm_based_shapefiles` contains a set of shapefiles (in .shp format and, for R users, in .Rds format), built from the shapefiles for GADM version 2.8 and European NUTS 2016 (see sources and their relevant terms of use below). These can be matched to the Social Connectedness Data for mapping. It also includes html files with interactive maps that can be used to explore the shapes.
+2. `gadm_based_shapefiles` contains a set of shapefiles (in .shp format and, for R users, sf objects in .Rds files), built from the shapefiles for GADM version 2.8 and European NUTS 2016 (see sources and their relevant terms of use below). These can be matched to the Social Connectedness Data for mapping. It also includes html files with interactive maps that can be used to explore the shapes.
 
   
 

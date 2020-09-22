@@ -2,7 +2,7 @@
 
   
 
-This repository provides a set of scripts and shapefiles to help make use of the Social Connectedness Index (SCI) data. The SCI data are downloadable at: <https://data.humdata.org/organization/facebook>.
+This repository provides a set of scripts and shapefiles to help make use of the Social Connectedness Index (SCI) data. The SCI data are downloadable at: <https://data.humdata.org/dataset/social-connectedness-index>.
 
   
 
@@ -18,7 +18,7 @@ The resources are split into 3 main directories:
 
   
 
-1. `example_scripts` contains a set of example scripts in R that map the SCI data. It includes subfolders for each of the different SCI granularities (`country_country`, `county_county`, etc.). It also includes an `interactive_map` subfolder that provides example code to generate interactive html maps using the [Leaflet R package](https://rstudio.github.io/leaflet/). You can view the example maps by downloading the html file and opening it in any internet browser (e.g. Google Chrome).
+1. `example_scripts` contains a set of example scripts in R that map the SCI data. It includes subfolders for each of the different SCI granularities (`country_country`, `county_county`, etc.). It also includes an `interactive_map` subfolder that provides example code to generate interactive html maps using the [Leaflet R package](https://rstudio.github.io/leaflet/). You can view the example maps by downloading the html file and opening it in any internet browser (e.g. Google Chrome). An example interactive SCI map is hosted [here](https://rpubs.com/domrussel/UKI41_SCI_map).
 
   
 

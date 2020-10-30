@@ -6,7 +6,9 @@ This repository provides a set of scripts and shapefiles to help make use of the
 
 
 
-It also includes replication code for [Kuchler, Russel, and Stroebel 2020](http://pages.stern.nyu.edu/~jstroebe/PDF/SCI_and_COVID.pdf). You can find the replication code for another paper that uses the SCI, [Bailey, Kuchler, Johnston, Russel, State, and Stroebel](https://doi.org/10.1007/978-3-030-60975-7_1), in [this separate repository](https://github.com/social-connectedness-index/euro_sci).
+It also includes replication code for [Kuchler, Russel, and Stroebel 2020](http://pages.stern.nyu.edu/~jstroebe/PDF/SCI_and_COVID.pdf).
+
+You can find the replication code for another paper that uses the SCI, [Bailey, Kuchler, Johnston, Russel, State, and Stroebel](https://doi.org/10.1007/978-3-030-60975-7_1), in [this separate repository](https://github.com/social-connectedness-index/euro_sci).
 
   
 

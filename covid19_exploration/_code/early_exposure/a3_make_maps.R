@@ -10,7 +10,7 @@
 #     _output/us_cases.jpg
 #     _output/sci_from_lodi.jpg
 #     _output/italy_cases.jpg
-# Date: 07/30/2020
+# Date: 12/01/2020
 # Steps:
 #     1. Generate Westchester maps
 #     2. Generate Lodi maps

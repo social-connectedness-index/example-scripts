@@ -18,9 +18,9 @@ require(randomForest)
 ############################################################
 
 ### FILL THESE LINES BEFORE RUNNING
-dir.sci_dat_county <- "../../unsynced_data_for_github/county_county.tsv"
-dir.sci_dat_gadm1_nuts3_counties <- "../../unsynced_data_for_github/gadm1_nuts3_counties_gadm1_nuts3_counties.tsv"
-dir.gadm1_nuts3_counties_shapes <- "../../unsynced_data_for_github/gadm1_nuts3_counties.Rds"
+dir.sci_dat_county <- ""
+dir.sci_dat_gadm1_nuts3_counties <- ""
+dir.gadm1_nuts3_counties_shapes <- ""
 
 # A1: Generate the distance between the centroids of all Italian provinces
 source("early_exposure/a1_gen_italy_distances.R")
@@ -46,8 +46,8 @@ rm(list=ls())
 ############################################
 
 ### FILL THESE LINE BEFORE RUNNING
-dir.sci_dat_county <- "../../unsynced_data_for_github/county_county.tsv"
-dir.lex_dat <- "../../unsynced_data_for_github/lex_data"
+dir.sci_dat_county <- ""
+dir.lex_dat <- ""
 
 # B1: Make the two case weighted measures of interest (RAM intensive!)
 source("time_series/b1_make_weighted_measures.R")

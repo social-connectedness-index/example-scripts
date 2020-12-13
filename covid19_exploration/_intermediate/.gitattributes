@@ -1,6 +1,1 @@
-sci_weighted_cases.csv filter=lfs diff=lfs merge=lfs -text
-time_series_regress_dat.csv filter=lfs diff=lfs merge=lfs -text
-westchester_sci_covariates.csv filter=lfs diff=lfs merge=lfs -text
-dist_weighted_cases.csv filter=lfs diff=lfs merge=lfs -text
-it_distance_table.csv filter=lfs diff=lfs merge=lfs -text
-lodi_sci_covariates.csv filter=lfs diff=lfs merge=lfs -text
+*.csv filter=lfs diff=lfs merge=lfs -text

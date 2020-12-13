@@ -1,5 +1,1 @@
-NCHSURCodes2013.csv filter=lfs diff=lfs merge=lfs -text
-cty_covariates_oi.csv filter=lfs diff=lfs merge=lfs -text
-italy_xw.csv filter=lfs diff=lfs merge=lfs -text
-sf12010countydistancemiles.csv filter=lfs diff=lfs merge=lfs -text
-ACS_17_5YR_DP05.csv filter=lfs diff=lfs merge=lfs -text
+*.csv filter=lfs diff=lfs merge=lfs -text

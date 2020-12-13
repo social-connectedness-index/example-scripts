@@ -2,23 +2,22 @@
 # Inputs: 
 #     _input/ACS_17_5YR_DP05.csv
 #     US COVID data from: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-30-2020.csv
-#     SCI Data: county_county.tsv
+#     SCI Data: dir.sci_dat_county
 #     _input/sf12010countydistancemiles.csv
 #     _input/NCHSURCodes2013.csv
-#     SCI Data: gadm1_nuts3_counties_gadm1_nuts3_counties.tsv
+#     SCI Data: dir.sci_dat_gadm1_nuts3_counties
 #     _output/it_distance_table.csv (NOTE: THIS CROSSWALK MAPS ALL OF SARDINIA TO THE REGION LEVEL)
 #     _input/italy_xw.csv
 #     Italy COVID data from: https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-20200330.csv
 # Outputs:
 #     _intermediate/westchester_sci_covariates.csv
 #     _intermediate/lodi_sci_covariates.csv"
-# Date: 07/30/2020
+# Date: 12/01/2020
 
 # Steps:
 #     1. Generate Westchester data
 #     2. Generate Lodi data
 
-library(sf)
 library(tidyverse)
 
 ########################################

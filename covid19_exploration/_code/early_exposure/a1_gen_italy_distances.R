@@ -1,14 +1,14 @@
 # Purpose: Generate the distance between the centroids of all Italian provinces
-# Inputs: _input/gadm_sci_data/gadm1_nuts3_counties.Rds
+# Inputs: NUTS3 Shapes: dir.gadm1_nuts3_counties_shapes
 # Outputs: _output/it_distance_table.csv
-# Date: 07/30/2020
+# Date: 12/01/2020
 
 library(tidyverse)
 library(sp)
 library(sf)
 
 # Read in the detailed GADM shapes
-shapes_it <- readRDS("../../gadm_based_shapefiles/rds_format/gadm1_nuts3_counties.Rds") %>% 
+shapes_it <- readRDS(dir.gadm1_nuts3_counties_shapes) %>% 
   filter(substr(key, 1, 2) == "IT") %>% 
   filter(substr(key, 1, 2) == "IT")
 

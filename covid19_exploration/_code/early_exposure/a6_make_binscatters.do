@@ -7,7 +7,7 @@
 //		_output\westchester_binscatter_final.pdf
 //		_output\lodi_binscatter_no_control.pdf
 //		_output\lodi_binscatter_final.pdf
-// Date: 07/30/2020
+// Date: 12/01/2020
 // Steps:
 //		1. Generate Westchester binscatters
 //		2. Generate Lodi binscatters

@@ -1,215 +1,225 @@
-# Purpose: Prepare COVID and SCI data for binscatters and maps
+# Purpose: Make the SCI to intital hotspots and early COVID maps
 # Inputs: 
+#     SCI Data: dir.sci_dat_county
 #     _input/ACS_17_5YR_DP05.csv
 #     US COVID data from: https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-30-2020.csv
-#     SCI Data: county_county.tsv
-#     _input/sf12010countydistancemiles.csv
-#     _input/NCHSURCodes2013.csv
-#     SCI Data: gadm1_nuts3_counties_gadm1_nuts3_counties.tsv
-#     _output/it_distance_table.csv (NOTE: THIS CROSSWALK MAPS ALL OF SARDINIA TO THE REGION LEVEL)
-#     _input/italy_xw.csv
-#     Italy COVID data from: https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-20200330.csv
-# Outputs:
-#     _intermediate/westchester_sci_covariates.csv
-#     _intermediate/lodi_sci_covariates.csv"
+#     _intermediate/lodi_sci_covariates.csv
+#     SCI Data: dir.sci_dat_gadm1_nuts3_counties
+# Outputs: 
+#     _output/sci_from_westchester.jpg
+#     _output/us_cases.jpg
+#     _output/sci_from_lodi.jpg
+#     _output/italy_cases.jpg
 # Date: 07/30/2020
-
 # Steps:
-#     1. Generate Westchester data
-#     2. Generate Lodi data
+#     1. Generate Westchester maps
+#     2. Generate Lodi maps
 
+library(tigris)
 library(sf)
 library(tidyverse)
 
-########################################
-##### 1. Generate Westchester data #####
-########################################
+################################
+# 1. Generate Westchester maps #
+################################
 
-# Read in county pops, pulled from Census
+# Get the maps from the tigris package
+counties_map <- counties(cb = TRUE) %>%
+  st_as_sf() %>%
+  st_transform("+init=epsg:2163") %>%
+  mutate(fips = as.numeric(paste0(STATEFP, COUNTYFP)))
+
+states_map <- states(cb = TRUE) %>%
+  st_as_sf() %>%
+  st_transform("+init=epsg:2163")
+
+# Read in county SCI data.
+# We don't use other data set because it excludes NYC counties
+# other than Manhattan, which can be seen on the map.
+sci_dat <- read_tsv(dir.sci_dat_county)
+county_dat <- rename(sci_dat, sci=scaled_sci) %>%
+  filter(user_loc == "36119") %>%
+  mutate(county_fips = as.numeric(fr_loc)) %>% 
+  select(-user_loc, -fr_loc)
+
+# Merge with shape files
+dat_map <- 
+  right_join(county_dat,
+             counties_map,
+             by=c("county_fips"="fips")) %>% 
+  st_as_sf
+
+# Create clean buckets for these levels
+dat_map <- dat_map %>% 
+  mutate(log_sci = log(sci)) %>% 
+  mutate(log_sci_bkt = case_when(
+    log_sci < 7 ~ "< 7",
+    log_sci < 7.5 ~ "7 - 7.5",
+    log_sci < 8 ~ "7.5 - 8",
+    log_sci < 9 ~ "8 - 9",
+    log_sci < 10.5 ~ "9 - 10.5",
+    log_sci >= 10.5 ~ "10.5+")) %>% 
+  mutate(log_sci_bkt = factor(log_sci_bkt, levels=c("< 7", "7 - 7.5", "7.5 - 8",
+                                                    "8 - 9", "9 - 10.5", "10.5+")))
+
+# Get the map of the region you are in
+curr_region_outline <- dat_map %>% 
+  filter(county_fips == 36119)
+
+# Plot the US case data
+ggplot(filter(dat_map, !is.na(log_sci_bkt))) +
+  geom_sf(aes(fill = log_sci_bkt), colour="#ADADAD", lwd=0) +
+  geom_sf(data=states_map, fill="transparent", colour="#A1A1A1", size=0.2) +
+  geom_sf(data=curr_region_outline, fill="#A00000", colour="#A00000", size=0.2) +
+  labs(fill = "SCI") +
+  theme_void() +
+  scale_fill_brewer(palette = "GnBu", drop=FALSE) +
+  theme(legend.title = element_blank(), 
+        legend.text  = element_text(size = 6.5),
+        legend.key.size = unit(0.25, "lines"),
+        legend.position = "bottom", legend.box = "horizontal") +
+  guides(fill = guide_legend(nrow = 1, title.hjust = 0.5)) +
+  coord_sf(xlim = c(-2200000, 2700000), ylim = c(-2200000, 850000), expand = FALSE) 
+
+ggsave(paste0("../_output/sci_from_westchester.jpg"),
+       width = 3.25, height = 1.9, units = "in", dpi = 800, last_plot())
+
+# Read in population and cases data
 county_pops <- read_csv("../_input/ACS_17_5YR_DP05.csv") %>% 
   select(fips = GEO.id2, label=`GEO.display-label`, pop=HC01_VC03)
 
-# Read in COVID data
 covid_dat <- 
   read_csv("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/03-30-2020.csv") %>% 
   filter(!is.na(FIPS)) %>% 
-  mutate(FIPS = as.numeric(FIPS)) %>% 
-  select(FIPS, state=Province_State, Confirmed, Deaths)
+  mutate(fips = as.numeric(FIPS)) %>% 
+  select(fips, state=Province_State, Confirmed, Deaths)
 
-# Read in SCI data
-sci_dat <- read_tsv(dir.sci_dat_county)
-sci_dat <- rename(sci_dat, sci=scaled_sci) %>%
-  mutate(user_loc=as.numeric(user_loc),
-         fr_loc=as.numeric(fr_loc)) %>% 
-  filter(user_loc <= 57000 & fr_loc <= 57000) # removes territories
-
-# Read in county-county distance from NBER
-# https://data.nber.org/data/county-distance-database.html
-county_county_dist <- read_csv("../_input/sf12010countydistancemiles.csv") %>% 
-  mutate(county1=as.numeric(county1),
-         county2=as.numeric(county2))
-
-# Read in rural-urban classification from NCHS
-# https://www.cdc.gov/nchs/data_access/urban_rural.htm
-rural_urban_classification <- read_csv("../_input/NCHSURCodes2013.csv") %>% 
-  select(fips = `FIPS code`, urban_rural_code = `2013 code`)
-
-# Read in county data from Opportunity Insights data library
-# https://opportunityinsights.org/data/
-# See: Neighborhood Characteristics by County
-oi_covariates <- read_csv("../_input/cty_covariates_oi.csv") %>% 
-  mutate(county=as.character(county)) %>% 
-  mutate(county=case_when(
-    str_length(county) == 1 ~ paste0("00", county),
-    str_length(county) == 2 ~ paste0("0", county),
-    TRUE ~ county
-  )) %>% 
-  mutate(fips = as.numeric(paste0(state, county))) %>% 
-  select(fips, med_hhinc2016, poor_share2010, popdensity2010)
-
-# Merge SCI to distance
-# This large double merge takes a few seconds
-dat1 <- sci_dat %>% 
-  left_join(county_county_dist, by=c("user_loc"="county1", "fr_loc"="county2")) %>% 
-  # Hopkins puts all NYC cases in Manhattan county.
-  # To match this in the SCI data we will average the NYC counties into one observation.
-  # In the final binscatter we will exclude cases within 50 miles, so this will not matter.
-  mutate(user_loc = if_else(user_loc %in% c(36005, 36047, 36081, 36085), 36061, user_loc)) %>% 
-  mutate(fr_loc = if_else(fr_loc %in% c(36005, 36047, 36081, 36085), 36061, fr_loc)) %>% 
-  group_by(user_loc, fr_loc) %>% 
-  summarise(sci = mean(sci),
-            mi_to_county = mean(mi_to_county)) %>% 
-  ungroup
-
-# Filter to SCI with Westchester
-dat_westchester <- dat1 %>% 
-  filter(fr_loc == 36119) %>% 
-  select(-fr_loc) %>% 
-  rename(dist = mi_to_county)
-
-# Add all other covariates
-dat_westchester_final <- dat_westchester %>% 
-  rename(county_fips = user_loc) %>% 
-  left_join(county_pops, by=c("county_fips"="fips")) %>% 
-  left_join(covid_dat, by=c("county_fips" = "FIPS")) %>% 
-  left_join(rural_urban_classification, by=c("county_fips"="fips")) %>% 
-  left_join(oi_covariates, by=c("county_fips"="fips")) %>% 
+county_dat <- covid_dat %>% 
+  left_join(county_pops, by=c("fips")) %>% 
   mutate(cases_per_10k = (Confirmed/pop)*10000)
 
-# Save the data
-write_csv(dat_westchester_final, "../_intermediate/westchester_sci_covariates.csv")
+# Merge with shape files
+dat_map <- 
+  right_join(county_dat,
+             counties_map,
+             by=c("fips")) %>% 
+  st_as_sf
+
+# Create clean buckets for these levels
+dat_map <- dat_map %>% 
+  mutate(cases_per_10k_bkt = case_when(
+    cases_per_10k < 1 ~ "< 1",
+    cases_per_10k < 1.5 ~ "1 - 1.5",
+    cases_per_10k < 3 ~ "1.5 - 3",
+    cases_per_10k < 6 ~ "3 - 6",
+    cases_per_10k < 10 ~ "6 - 10",
+    cases_per_10k >= 10 ~ "10+")) %>%
+  mutate(cases_per_10k_bkt = factor(cases_per_10k_bkt, levels=c("< 1", "1 - 1.5", "1.5 - 3", "3 - 6",
+                                                                "6 - 10", "10+")))
+
+# Plot the Westchester SCI data
+ggplot(filter(dat_map, !is.na(cases_per_10k_bkt))) +
+  geom_sf(aes(fill = cases_per_10k_bkt), colour="#ADADAD", lwd=0) +
+  geom_sf(data=states_map, fill="transparent", colour="#A1A1A1", size=0.2) +
+  labs(fill = "SCI") +
+  theme_void() +
+  scale_fill_brewer(palette = "YlOrRd", drop=FALSE) +
+  theme(legend.title = element_blank(), 
+        legend.text  = element_text(size = 6.5),
+        legend.key.size = unit(0.25, "lines"),
+        legend.position = "bottom", legend.box = "horizontal") +
+  guides(fill = guide_legend(nrow = 1, title.hjust = 0.5)) +
+  coord_sf(xlim = c(-2200000, 2700000), ylim = c(-2200000, 850000), expand = FALSE) 
+
+ggsave(paste0("../_output/us_cases.jpg"),
+       width = 3.25, height = 1.9, units = "in", dpi = 800, last_plot())
 
 
-#################################
-##### 2. Generate Lodi data #####
-#################################
+#########################
+# 2. Generate Lodi maps #
+#########################
 
-# Throughout this section we pull Sardinia at the region level.
-# This is because the SCI and covariate data we use are at NUTS3
-# which is defined differently in Sardinia than the current
-# Italian provinces (the level of the COVID-19 data).
-# This is because of a recent change in Italian province definitions.
-# NUTS3 and provinces will match again in the NUTS3 2021 data.
+# Read in it dat
+it_dat <- read_csv("../_intermediate/lodi_sci_covariates.csv")
 
-# Read in the populations 
-pop <- read.table("../_input/eurostat/demo_r_pjangrp3.tsv", sep = '\t', header = TRUE) %>% 
-  separate(sex.unit.age.geo.time, c("sex","unit","age","geo"), ",") %>% 
-  filter(sex == "T", age == "TOTAL") %>% 
-  select(geo, X2018) %>% 
-  # Combine Sardinia
-  filter(str_length(geo) == 5 | substr(geo, 1, 4) == "ITG2") %>%
-  filter(!(str_length(geo) == 5 & substr(geo, 1, 4) == "ITG2")) %>%
-  filter(substr(geo, 1, 2) == "IT") %>% 
-  mutate(X2018 = gsub("[^0-9\\.]", "", X2018)) %>%  # Remove comment codes
-  mutate(pop_2018 = as.numeric(X2018)) %>% 
-  select(-X2018) %>% 
-  as_tibble()
+# Read in the detailed GADM shapes
+shapes_in <- readRDS(dir.gadm1_nuts3_counties_shapes) %>% 
+  filter(substr(key, 1, 2) == "IT") %>% 
+  filter(substr(key, 1, 2) == "IT")
 
-# Read in the population densities
-density <- read.table("../_input/eurostat/demo_r_d3dens.tsv", sep = '\t', header = TRUE) %>% 
-  separate(unit.geo.time, c("unit","geo"), ",") %>% 
-  # Combine Sardinia
-  filter(str_length(geo) == 5 | substr(geo, 1, 4) == "ITG2") %>%
-  filter(!(str_length(geo) == 5 & substr(geo, 1, 4) == "ITG2")) %>% 
-  filter(substr(geo, 1, 2) == "IT") %>% 
-  mutate(X2018 = gsub("[^0-9\\.]", "", X2018)) %>%  # Remove comment codes
-  mutate(pop_per_km = as.numeric(X2018)) %>% 
-  select(geo, pop_per_km) %>% 
-  as_tibble()
-
-# Read in the GDP per person
-gdp <- read.table("../_input/eurostat/nama_10r_3gdp.tsv", sep = '\t', header = TRUE) %>% 
-  separate(unit.geo.time, c("unit","geo"), ",") %>% 
-  filter(unit == "EUR_HAB") %>% 
-  # Combine Sardinia
-  filter(str_length(geo) == 5 | substr(geo, 1, 4) == "ITG2") %>%
-  filter(!(str_length(geo) == 5 & substr(geo, 1, 4) == "ITG2")) %>%
-  filter(substr(geo, 1, 2) == "IT") %>%
-  mutate(X2017 = gsub("[^0-9\\.]", "", X2017)) %>%  # Remove comment codes
-  mutate(gdp_per_hab = as.numeric(X2017)) %>% 
-  select(geo, gdp_per_hab) %>% 
-  as_tibble()
-
-# Merge all Eurostat together
-all_eurostat <-
-  pop %>% 
-  inner_join(density, by="geo") %>% 
-  inner_join(gdp, by="geo")
-
-# Read in the Italy distance data
-it_distance <- read_csv("../_intermediate/it_distance_table.csv") %>% 
-  # Average distances for Sardinia
-  mutate(from_nuts3 = if_else(substr(from_nuts3, 1, 4) == "ITG2", "ITG2", from_nuts3)) %>% 
-  mutate(to_nuts3 = if_else(substr(to_nuts3, 1, 4) == "ITG2", "ITG2", to_nuts3)) %>% 
-  group_by(from_nuts3, to_nuts3) %>% 
-  summarise(dist = mean(dist)) %>% 
+# Use the average SCI for Sardinia.
+# (See the long note on why we do this in the prep data script)
+shapes_clean <- shapes_in %>% 
+  mutate(key = as.character(key)) %>% 
+  mutate(key = if_else(substr(key,1,4) == "ITG2", "ITG2", key)) %>% 
+  group_by(key) %>% 
+  summarise(geometry = st_union(geometry)) %>% 
   ungroup
 
-# Filter distance data to Lodi
-dist_to_lodi <- it_distance %>% 
-  filter(from_nuts3 == "ITC49") %>% 
-  select(-from_nuts3)
+# The shapes we use are rather detailed. To generate these maps
+# we simplify the shape files.
+shapes_simple <- st_simplify(shapes_clean, dTolerance = .015)
 
-# Read in the Italy COVID data
-it_dat <- read_csv("https://raw.githubusercontent.com/pcm-dpc/COVID-19/master/dati-province/dpc-covid19-ita-province-20200330.csv")
+# Join the shapes to the data
+final_it_dat <- 
+  it_dat %>%
+  inner_join(shapes_simple, by=c("nuts3_code"="key")) %>% 
+  st_as_sf()
 
-# Read in the Italy province code -> NUTS3 crosswalk.
-# This was constructed by hand.
-# NOTE: This crosswalk maps all of Sardinia to the region level.
-# One must group resulting data by ITG2 after using this.
-it_xw <- read_csv("../_input/italy_xw.csv")
+# The measures are the percentiles of all connections
+ptile_50 <- quantile(final_it_dat$sci, .5)
+ptile_60 <- quantile(final_it_dat$sci, .6)
+ptile_70 <- quantile(final_it_dat$sci, .7)
+ptile_80 <- quantile(final_it_dat$sci, .8)
+ptile_90 <- quantile(final_it_dat$sci, .9)
 
-# Crosswalk to get COVID at NUTS3 level
-it_covid_nuts3 <- 
-  left_join(it_dat, it_xw, by=c("sigla_provincia"="Code")) %>% 
-  filter(denominazione_provincia != "In fase di definizione/aggiornamento") %>% 
-  select(nuts3_code = key, total_cases = totale_casi) %>% 
-  # We group together Sardinia (this is done by the crosswalk)
-  group_by(nuts3_code) %>% 
-  summarise(total_cases = sum(total_cases))
+# Create clean buckets for these levels
+final_it_dat <- final_it_dat %>%
+  mutate(cases_bkt = case_when(
+    cases_per_10k < 5 ~ "< 5",
+    cases_per_10k < 10 ~ "5 - 10",
+    cases_per_10k < 20 ~ "10 - 20",
+    cases_per_10k < 30 ~ "20 - 30",
+    cases_per_10k < 40 ~ "30 - 40",
+    cases_per_10k >= 40 ~ "40+")) %>% 
+  mutate(cases_bkt= factor(cases_bkt, levels=c("< 5", "5 - 10", "10 - 20", "20 - 30", "30 - 40", "40+"))) %>% 
+  mutate(sci_bkt = case_when(
+    sci < ptile_50 ~ "< Province 50th Pctile",
+    sci < ptile_60 ~ "50-60th Pctile",
+    sci < ptile_70 ~ "60-70th Pctile",
+    sci < ptile_80 ~ "70-80th Pctile",
+    sci < ptile_90 ~ "80-90th Pctile",
+    sci >= ptile_90 ~ ">= 90th Pctile")) %>% 
+  mutate(sci_bkt = factor(sci_bkt, levels=c("< Province 50th Pctile", "50-60th Pctile", "60-70th Pctile",
+                                            "70-80th Pctile", "80-90th Pctile", ">= 90th Pctile")))
 
-# Combine Eurostat and covid
-eurostat_covid <- 
-  all_eurostat %>% 
-  inner_join(it_covid_nuts3, by=c("geo"="nuts3_code"))
+# Get the map of Lodi
+curr_region_outline <- final_it_dat %>% 
+  filter(nuts3_code == "ITC49")
 
-# Read in SCI data and filter to Italy
-sci_dat <- read_tsv(dir.sci_dat_gadm1_nuts3_counties)
-sci_dat <- rename(sci_dat, sci=scaled_sci)
-it_sci_dat <- sci_dat %>%
-  filter(substr(user_loc, 1, 2) == "IT") %>%
-  filter(substr(fr_loc, 1, 2) == "IT")
+# Plot the Lodi SCI data
+ggplot(final_it_dat) +
+  geom_sf(aes(fill = sci_bkt), colour="#e0e0e0", size=0.1) +
+  geom_sf(data=curr_region_outline, fill="#A00000", colour="#A00000", lwd=0) +
+  labs(fill = "Cases per 10k people") +
+  theme_void() +
+  scale_fill_brewer(palette = "GnBu", drop=FALSE) +
+  theme(legend.title = element_blank(), 
+        legend.text  = element_text(size = 9),
+        legend.key.size = unit(1, "lines"))
 
-# Make final data
-final_lodi_dat <- 
-  filter(it_sci_dat, user_loc == "ITC49") %>%
-  mutate(fr_loc = if_else(substr(fr_loc, 1, 4) == "ITG2", "ITG2", fr_loc)) %>% 
-  group_by(fr_loc) %>% 
-  # For Sardinia, we do use mean SCI of the NUTS3 regions
-  summarise(sci = mean(sci)) %>% 
-  inner_join(eurostat_covid, by=c("fr_loc"="geo")) %>% 
-  inner_join(dist_to_lodi, by=c("fr_loc"="to_nuts3")) %>% 
-  mutate(cases_per_10k = (total_cases/pop_2018)*10000) %>% 
-  rename(nuts3_code=fr_loc)
+ggsave("../_output/sci_from_lodi.jpg",
+       width = 5, height = 4, units = "in", dpi = 800, last_plot())
 
-write_csv(final_lodi_dat, "../_intermediate/lodi_sci_covariates.csv")
+# Plot the Italy case data
+ggplot(final_it_dat) +
+  geom_sf(aes(fill = cases_bkt), colour="#e0e0e0", size=0.1) +
+  labs(fill = "Cases per 10k people") +
+  theme_void() +
+  scale_fill_brewer(palette = "YlOrRd", drop=FALSE) +
+  theme(legend.title = element_blank(), 
+        legend.text  = element_text(size = 9),
+        legend.key.size = unit(1, "lines"))
+
+ggsave("../_output/italy_cases.jpg",
+       width = 5, height = 4, units = "in", dpi = 800, last_plot())

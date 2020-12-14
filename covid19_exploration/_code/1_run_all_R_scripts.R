@@ -17,10 +17,19 @@ require(randomForest)
 #### A. Make the results for earliest hotspots in US/IT ####
 ############################################################
 
-### FILL THESE LINES BEFORE RUNNING
+###### FILL THESE LINES BEFORE RUNNING ###### 
+
+# The path to your county-county SCI data from: https://data.humdata.org/dataset/social-connectedness-index
 dir.sci_dat_county <- ""
+
+# The path to your gadm1_nuts3_counties SCI data from: https://data.humdata.org/dataset/social-connectedness-index
 dir.sci_dat_gadm1_nuts3_counties <- ""
+
+# The path to your gadm1_nuts3_counties shape file from: https://github.com/social-connectedness-index/example-scripts/tree/master/gadm_based_shapefiles/rds_format
 dir.gadm1_nuts3_counties_shapes <- ""
+
+################################################
+
 
 # A1: Generate the distance between the centroids of all Italian provinces
 source("early_exposure/a1_gen_italy_distances.R")
@@ -41,13 +50,23 @@ source("early_exposure/a5_hotspot_out_of_sample.R")
 
 rm(list=ls())
 
+
+
 ############################################
 #### B. Make time series results for US ####
 ############################################
 
-### FILL THESE LINE BEFORE RUNNING
+###### FILL THESE LINES BEFORE RUNNING ###### 
+
+# The path to your county-county SCI data from: https://data.humdata.org/dataset/social-connectedness-index
 dir.sci_dat_county <- ""
+
+# The path to a folder that stores LEX data from: https://github.com/COVIDExposureIndices/COVIDExposureIndices
+# The dates used are every other Monday from 2020-02-03 to 2020-08-17, and every other Saturday from 2020-08-29 to 2020-10-24
 dir.lex_dat <- ""
+
+################################################
+
 
 # B1: Make the two case weighted measures of interest (RAM intensive!)
 source("time_series/b1_make_weighted_measures.R")

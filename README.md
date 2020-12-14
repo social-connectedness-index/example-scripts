@@ -6,7 +6,7 @@ This repository provides a set of scripts and shapefiles to help make use of the
 
 
 
-It also includes replication code for [Kuchler, Russel, and Stroebel 2020](http://pages.stern.nyu.edu/~jstroebe/PDF/SCI_and_COVID.pdf).
+It also includes replication code for [Kuchler, Russel, and Stroebel 2020](https://arxiv.org/pdf/2004.03055.pdf).
 
 You can find the replication code for another paper that uses the SCI ([Bailey, Kuchler, Johnston, Russel, State, and Stroebel 2020](https://doi.org/10.1007/978-3-030-60975-7_1)) in [this separate repository](https://github.com/social-connectedness-index/euro_sci).
 
@@ -32,7 +32,7 @@ The resources are split into 3 main directories:
 
   
 
-3. `covid19_exploration` contains a set of example scripts in R and Stata that produce the results in [Kuchler, Russel, and Stroebel 2020](http://pages.stern.nyu.edu/~jstroebe/PDF/SCI_and_COVID.pdf). This folder contains a separate short readme. 
+3. `covid19_exploration` contains a set of example scripts in R and Stata that produce the results in [Kuchler, Russel, and Stroebel 2020](https://arxiv.org/pdf/2004.03055.pdf). This folder contains a separate short readme. 
 
   
 We also include `Relevant Literature + Bibtex.bib`, a list of papers that introduce and develop the Social Connectedness Index, as well as guidance on how to cite the prior literature when using the SCI data.

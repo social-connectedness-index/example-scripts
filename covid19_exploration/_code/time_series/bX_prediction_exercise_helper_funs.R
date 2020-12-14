@@ -10,7 +10,7 @@ build_models <- function(train_dat, model_form){
   glm_model <- glm(as.formula(model_form), data=train_dat)
   
   # Random Forest-based predictions
-  # We use all the 'out of the box' tuning parameters (ntree = 500, mtry=x/3)
+  # We use most of the 'out of the box' tuning parameters (ntree = 500, mtry=x/3)
   # The default nodesize will be extremely small for bigger datasets. For tractability
   # we instead set it to 0.1% of the training data size
   rf_model <- randomForest(as.formula(model_form), nodesize=ceiling(nrow(train_dat)/1000), data=train_dat)
@@ -31,7 +31,7 @@ build_models <- function(train_dat, model_form){
 #     model_week = The week for which this models is making predictions for
 #     model_type = "glm" or "rf" (for random forest)
 #     dat_to_use = The test data to use
-# Outputs: A list of two trained models (1=GLM, 2=RandomForest)
+# Outputs: A vector of predictions using the specified model and dat_to_use
 make_preds <- function(models, spec_name, model_week, model_type, dat_to_use){
   
   preds <- NULL

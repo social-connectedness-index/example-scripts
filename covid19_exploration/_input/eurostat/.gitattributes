@@ -1,1 +1,4 @@
 *.tsv filter=lfs diff=lfs merge=lfs -text
+demo_r_d3dens.tsv filter=lfs diff=lfs merge=lfs -text
+demo_r_pjangrp3.tsv filter=lfs diff=lfs merge=lfs -text
+nama_10r_3gdp.tsv filter=lfs diff=lfs merge=lfs -text

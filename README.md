@@ -1,12 +1,12 @@
 # Example code for the Social Connectedness Index
 
-This repository provides a set of scripts and shapefiles to help make use of the Social Connectedness Index (SCI) data. The SCI data are downloadable at: <https://data.humdata.org/dataset/social-connectedness-index>.
+This repository provides a set of scripts to help make use of the Social Connectedness Index (SCI) data. The SCI data are downloadable at: <https://data.humdata.org/dataset/social-connectedness-index>.
 
 It also includes replication code for [Kuchler, Russel, and Stroebel 2021](https://doi.org/10.1016/j.jue.2020.103314).
 
 You can find the replication code for another paper that uses the SCI ([Bailey, Kuchler, Johnston, Russel, State, and Stroebel 2020](https://doi.org/10.1007/978-3-030-60975-7_1)) in [this separate repository](https://github.com/social-connectedness-index/euro_sci).
 
-Separately, we host the zip file [gadm_based_shapefiles.zip](https://drive.google.com/file/d/1SfcY3Hpyws3o0Ukhq6smraAQ48zx90un/view?usp=sharing) which contains a set of shapefiles (in .shp format and, for R users, sf objects in .Rds files), built from the shapefiles for GADM version 2.8 and European NUTS 2016 (see sources and their relevant terms of use below). These can be matched to the Social Connectedness data for mapping. It also includes html files with interactive maps that can be used to explore the shapes.
+Separately, we host the zip file [gadm_based_shapefiles.zip](https://drive.google.com/file/d/1SfcY3Hpyws3o0Ukhq6smraAQ48zx90un/view?usp=sharing) which contains a set of shapefiles (in .shp format and, for R users sf objects in .Rds files) that can be matched to the SCI data for mapping. These are built from the shapefiles for GADM version 2.8 and European NUTS 2016 (see sources and their relevant terms of use below). The zip also includes html files with interactive maps that can be used to explore the shapes.
  
 ***IMPORTANT NOTE***: This repository uses [git-lfs](https://git-lfs.github.com/) for versioning large files. You will need it installed to clone the repository.
 
